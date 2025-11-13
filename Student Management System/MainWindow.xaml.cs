@@ -31,24 +31,42 @@ namespace Student_Management_System
             dgStudents.ItemsSource = students;
        }
 
+        private bool ValidateInput(out int age)
+        {
+            age = 0;
+
+            if (!int.TryParse(txtAge.Text, out age))
+            {
+                MessageBox.Show(" Please enter a valid age");
+                return false;
+            }
+            else if (age < 0 || age > 100)
+            {
+                MessageBox.Show(" Please enter a valid age between 0 and 100");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtFirstName.Text)
+                || string.IsNullOrWhiteSpace(txtLastName.Text)
+                || string.IsNullOrWhiteSpace(txtAge.Text)
+                || string.IsNullOrWhiteSpace(txtMajor.Text))
+            {
+                MessageBox.Show(" Please fill in all fields");
+                return false;
+            }
+
+            return true;
+        }
         private void btnAddStudent_Click(object sender, RoutedEventArgs e)
         {
+            if (!ValidateInput(out int age))
+                return;
+
             string firstName = txtFirstName.Text;
             string secondName = txtSecondName.Text;
             string lastName = txtLastName.Text;
-            if(!int.TryParse(txtAge.Text,out int age))
-            {
-                MessageBox.Show("Must write a number");
-                return;
-            }
             string major = txtMajor.Text;
            
-            txtFirstName.Clear();
-            txtSecondName.Clear();
-            txtLastName.Clear();
-            txtAge.Clear();
-            txtMajor.Clear();
-
             var student = new Student()
             {
                 FirstName = firstName,
@@ -58,8 +76,23 @@ namespace Student_Management_System
                 Major = major
             };
 
-            _repository.AddStudents(student);
-            LoadStudents();
+            try
+            { 
+                _repository.AddStudents(student);
+
+                 txtFirstName.Clear();
+                 txtSecondName.Clear();
+                 txtLastName.Clear();
+                 txtAge.Clear();
+                 txtMajor.Clear();
+
+                  LoadStudents();
+            }
+
+            catch(Exception)
+            {
+                MessageBox.Show($"An error occurred while adding the student");
+            }
         }
 
         private void btnUpdateStudent_Click(object sender, RoutedEventArgs e)
@@ -70,9 +103,8 @@ namespace Student_Management_System
                 return;
             }
 
-            if(!int.TryParse(txtAge.Text, out var age ))
+            if (!ValidateInput(out int age))
             {
-                MessageBox.Show(" Please enter a valid age");
                 return;
             }
 
@@ -86,19 +118,29 @@ namespace Student_Management_System
                 Major = txtMajor.Text
             };
 
-            _repository.UpdateStudents(updatedstudent);
+            try
+            {
+                _repository.UpdateStudents(updatedstudent);
 
-            LoadStudents();
+                LoadStudents();
 
-            txtFirstName.Clear();
-            txtSecondName.Clear();
-            txtLastName.Clear();
-            txtAge.Clear();
-            txtMajor.Clear();
+                txtFirstName.Clear();
+                txtSecondName.Clear();
+                txtLastName.Clear();
+                txtAge.Clear();
+                txtMajor.Clear();
 
-            MessageBox.Show("Selection changed succesfully");
+                MessageBox.Show("Selection changed succesfully");
 
-            btnUpdateStudent.IsEnabled = false;
+                btnUpdateStudent.IsEnabled = false;
+
+            }
+
+            catch (Exception)
+            {
+                MessageBox.Show($"An error occurred while updating the student");
+            }
+           
 
         }
   
@@ -123,7 +165,7 @@ namespace Student_Management_System
                 btnDeleteStudent.IsEnabled = false;
             }
 
-      
+        
 
         }
 
@@ -136,15 +178,31 @@ namespace Student_Management_System
             }
             var deleteStudent = new Student()
             {
-                StudentID = selectedStudent.StudentID
+                StudentID = selectedStudent.StudentID,
+                FirstName = selectedStudent.FirstName,
+                SecondName = selectedStudent.SecondName,
+                LastName = selectedStudent.LastName,
+                Age = selectedStudent.Age,
+                Major = selectedStudent.Major
             };
+            try 
+            {
+                _repository.DeleteStudents(deleteStudent);
+                LoadStudents();
 
-            _repository.DeleteStudents(deleteStudent);
-
-            LoadStudents();
-
-            btnDeleteStudent.IsEnabled = false;
-
+                txtFirstName.Clear();
+                txtSecondName.Clear();
+                txtLastName.Clear();
+                txtAge.Clear();
+                txtMajor.Clear();
+                MessageBox.Show("Student deleted successfully");
+                 
+                btnDeleteStudent.IsEnabled = false;
+            }
+            catch(Exception)
+            {
+                MessageBox.Show($"An error occurred while deleting the student");
+            }
         }
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
@@ -154,7 +212,6 @@ namespace Student_Management_System
             txtLastName.Clear();
             txtAge.Clear();
             txtMajor.Clear();
-
         }
     }
 }

@@ -9,10 +9,10 @@ namespace Student_Management_System
     public class Student
     {
         public int StudentID { get; set; }
-        public string FirstName { get; set; }
-        public string SecondName { get; set; }
-        public string LastName { get; set; }
-        public int Age { get; set; }
-        public string Major { get; set; }
+        public required string  FirstName { get; set; }
+        public string? SecondName { get; set; }
+        public required string LastName { get; set; }
+        public required int Age { get; set; }
+        public required string Major { get; set; }
     }
 }
